@@ -1,0 +1,14 @@
+[run]
+source = exeplot
+omit =
+    src/exeplot/__info__.py
+    tests/*
+
+[report]
+exclude_lines =
+    pragma: no cover
+    if.*?__name__.*?==.*?.__main__.:
+    def main\(\)\:
+    except ImportError:
+    except NameError:
+    raise NotImplementedError

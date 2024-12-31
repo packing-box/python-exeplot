@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools>=70.0", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+
+[tool.setuptools.dynamic]
+version = {attr = "exeplot.__info__.__version__"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"*" = ["*.txt"]
+
+[project]
+name = "exeplot"
+authors = [
+  {name="Alexandre D'Hondt", email="alexandre.dhondt@gmail.com"},
+]
+description = "Library for plotting executable samples supporting multiple formats"
+license = {file = "LICENSE"}
+keywords = ["python", "development", "programming", "executable-samples", "plot"]
+requires-python = ">=3.9,<4"
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+  "Programming Language :: Python :: 3",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+  "lief>=0.16.1",
+]
+dynamic = ["version"]
+
+[project.readme]
+file = "README.md"
+content-type = "text/markdown"
+
+[project.urls]
+documentation = "https://python-exeplot.readthedocs.io/en/latest/?badge=latest"
+homepage = "https://github.com/dhondta/python-exeplot"
+issues = "https://github.com/dhondta/python-exeplot/issues"
+repository = "https://github.com/dhondta/python-exeplot"
+
+[project.scripts]
+exeplot = "exeplot.__main__:main"
