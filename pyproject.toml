@@ -33,6 +33,7 @@ classifiers = [
 ]
 dependencies = [
   "lief>=0.16.1",
+  "matplotlib",
 ]
 dynamic = ["version"]
 
