@@ -13,7 +13,7 @@ def _parser(name, description, examples):
                           epilog="usage examples:\n  " + "\n  ".join(examples) if len(examples) > 0 else None)
 
 
-def _setup(parser):
+def _setup(parser):  # pragma: no cover
     args = parser.parse_args()
     if hasattr(args, "verbose"):
         import logging
@@ -31,18 +31,12 @@ def main():
     plots = parser.add_subparsers(dest="type", help="plot type")
     for plot in _plots:
         plot_func = globals()[plot]
-        plot_parser = plot_func.__args__(plots.add_parser(plot, help=plot_func.__doc__.strip()))
-        """
-        opt = plot_parser.add_argument_group("style arguments")
-        for a in ["title-font", "suptitle-font", "xlabel-font", "ylable-font"]:
-            for i in ["family", "size", "weight"]:
-                kw = {'help': "", 'metavar': i.upper()}
-                if i == "size":
-                    kw['type'] = int
-                elif i == "weight":
-                    kw['choices'] = ("normal", "bold", "italic")
-                opt.add_argument(f"--{a}-{i}", **kw)
-        """
+        plot_parser = plot_func.__args__(plots.add_parser(plot, help=plot_func.__doc__.strip(), add_help=False))
+        opt = plot_parser.add_argument_group("options")
+        opt.add_argument("--no-title", action="store_true", help="do not display the title (default: False)")
+        extra = plot_parser.add_argument_group("extra arguments")
+        extra.add_argument("-h", "--help", action="help", help="show this help message and exit")
+        extra.add_argument("-i", "--interactive-mode", action="store_true", help="open Python console to edit the plot")
     args = _setup(parser)
     exe = args.executable if isinstance(args.executable, list) else [args.executable]
     delattr(args, "executable")

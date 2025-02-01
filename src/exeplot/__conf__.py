@@ -13,12 +13,13 @@ config = {
     'font_family':    "serif",
     'font_size':      10,
     'img_format':     "png",
+    'shadow':         True,
     'style':          "default",
-#    'transparent':    False,
+    'transparent':    False,
 }
 
 
-def configure():
+def configure():  # pragma: no cover
     from configparser import ConfigParser
     from os.path import exists, expanduser
     path = expanduser("~/.exeplot.conf")
@@ -43,6 +44,9 @@ def configure_fonts(**kw):
     kw['suptitle-font'] = {'fontfamily': kw.pop('suptitle_font_family', config['font_family']),
                            'fontsize': kw.pop('suptitle_font_size', int(config['font_size'] * 1.2)),
                            'fontweight': kw.pop('suptitle_font_weight', "normal")}
+    kw['annotation-font'] = {'fontfamily': kw.pop('suptitle_font_family', config['font_family']),
+                           'fontsize': kw.pop('suptitle_font_size', int(config['font_size'] * .5)),
+                           'fontweight': kw.pop('suptitle_font_weight', "normal")}
     for p in "xy":
         kw[f'{p}label-font'] = {'fontfamily': kw.pop(f'{p}label_font_family', config['font_family']),
                                 'fontsize': kw.pop(f'{p}label_font_size', config['font_size']),
@@ -56,28 +60,32 @@ def save_figure(f):
          function ; put it in the "figures" subfolder of the current experiment's folder if relevant. """
     @wraps(f)
     def _wrapper(*a, **kw):
+        import matplotlib.pyplot as plt
         from os import makedirs
         from os.path import basename, dirname, splitext
-        logger.info("Preparing plot data...")
+        from .plots.__common__ import Binary
+        plot_type = f.__globals__['__name__'].split(".")[-1]
+        logger.info(f"Preparing {plot_type} plot data...")
         configure()
-        imgs = f(*a, **configure_fonts(**kw))
-        ext = "." + kw.get('img_format', config['img_format'])
-        kw_plot = {k: kw.get(k, config[k]) for k in ["bbox_inches", "dpi"]}
+        kw = configure_fonts(**kw)
+        imgs = f(*a, **kw)
+        r = []
+        kw_plot = {k: kw.get(k, config[k]) for k in ["bbox_inches", "dpi", "transparent"]}
         for img in (imgs if isinstance(imgs, (list, tuple, type(x for x in []))) else [imgs]):
-            if img is None:
-                img = kw.get('img_name') or splitext(basename(a[0]))[0]
-            if not img.endswith(ext):
+            img = img or kw.get('img_name') or f"{splitext(basename(a[0]))[0]}_{plot_type}"
+            if not img.endswith(ext := "." + kw.get('img_format', config['img_format'])):
                 img += ext
-            if d := dirname(img):
-                makedirs(d, exist_ok=True)
-            if kw.get('interactive_mode', False):
+            makedirs(dirname(img) or ".", exist_ok=True)
+            if kw.get('interactive_mode', False):  # pragma: no cover
                 from code import interact
+                logger.info(f"{img}: use 'plt.savefig(img, **kw_plot)' to save the figure")
                 ns = {k: v for k, v in globals().items()}
                 ns.update(locals())
-                l.info(f"{img}: use 'plt.savefig(img, **kw_plot)' to save the figure")
                 interact(local=ns)
             logger.info(f"Saving to {img}...")
             plt.savefig(img, **kw_plot)
             logger.debug(f"> saved to {img}...")
+            r.append(img)
+        return r
     return _wrapper
 

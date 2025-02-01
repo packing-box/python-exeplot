@@ -12,6 +12,7 @@ for f in os.listdir(os.path.dirname(os.path.abspath(__file__))):
     name = f[:-3]
     module = importlib.import_module(f".{name}", package=__name__)
     if hasattr(module, "plot") and callable(getattr(module, "plot")):
-        globals()[f"{name}"] = getattr(module, "plot")
+        globals()[f"{name}"] = f = getattr(module, "plot")
+        f.__args__ = getattr(module, "arguments")
         __all__.append(name)
 
