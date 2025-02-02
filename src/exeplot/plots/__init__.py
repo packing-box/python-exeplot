@@ -14,5 +14,6 @@ for f in os.listdir(os.path.dirname(os.path.abspath(__file__))):
     if hasattr(module, "plot") and callable(getattr(module, "plot")):
         globals()[f"{name}"] = f = getattr(module, "plot")
         f.__args__ = getattr(module, "arguments")
+        f.__name__ = name
         __all__.append(name)
 
