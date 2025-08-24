@@ -13,15 +13,45 @@
 This library implements multiple plot types for illustrating executable samples. It currently supports the PE, ELF and Mach-O formats, relying on [`lief`](https://github.com/lief-project/LIEF) for abstracting them.
 
 ```sh
-pip install exeplot
+$ pip install exeplot
 ```
 
-## :sunglasses: Usage
+## :sunglasses: Usage Examples
 
-TODO
+Draw a byte plot of `calc_packed.exe`:
+
+```sh
+$ exeplot byte calc_packed.exe
+```
+
+![Byte plot of `calc_packed.exe`](https://github.com/packing-box/python-exeplot/blob/main/docs/pages/img/calc_packed_byte.png?raw=true)
+
+Draw a pie plot of `calc_packed.exe`:
+
+```sh
+$ exeplot pie calc_packed.exe
+```
+
+![Pie plot of `calc_packed.exe`](https://github.com/packing-box/python-exeplot/blob/main/docs/pages/img/calc_packed_pie.png?raw=true)
+
+Draw a nested pie plot of `calc_packed.exe`:
+
+```sh
+$ exeplot nested_pie calc_packed.exe
+```
+
+![Nested pie plot of `calc_packed.exe`](https://github.com/packing-box/python-exeplot/blob/main/docs/pages/img/calc_packed_nested_pie.png?raw=true)
+
+Draw a stacked and scaled entropy plot of `calc_orig.exe` and `calc_packed.exe`:
+
+```sh
+$ exeplot entropy calc_orig.exe calc_packed.exe
+```
+
+![Entropy plot of `calc_orig.exe` and `calc_packed.exe`](https://github.com/packing-box/python-exeplot/blob/main/docs/pages/img/calc_orig_entropy.png?raw=true)
 
 
-## :clap:  Supporters
+## :clap: Supporters
 
 [![Stargazers repo roster for @packing-box/python-exeplot](https://reporoster.com/stars/dark/packing-box/python-exeplot)](https://github.com/packing-box/python-exeplot/stargazers)
 
