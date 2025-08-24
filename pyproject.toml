@@ -21,7 +21,7 @@ authors = [
 ]
 description = "Library for plotting executable samples supporting multiple formats"
 license = {file = "LICENSE"}
-keywords = ["python", "development", "programming", "executable-samples", "plot"]
+keywords = ["python", "development", "programming", "executable-samples", "plot", "entropy", "cfg"]
 requires-python = ">=3.9,<4"
 classifiers = [
   "Development Status :: 5 - Production/Stable",
@@ -37,15 +37,23 @@ dependencies = [
 ]
 dynamic = ["version"]
 
+[project.optional-dependencies]
+graph = [
+  "angr>=9.2",
+  "networkx>=3.4.2",
+  "numpy<2",  # required until angr gets compatible with numpy>=2
+  "pygraphviz>=1.14",
+]
+
 [project.readme]
 file = "README.md"
 content-type = "text/markdown"
 
 [project.urls]
 documentation = "https://python-exeplot.readthedocs.io/en/latest/?badge=latest"
-homepage = "https://github.com/dhondta/python-exeplot"
-issues = "https://github.com/dhondta/python-exeplot/issues"
-repository = "https://github.com/dhondta/python-exeplot"
+homepage = "https://github.com/packing-box/python-exeplot"
+issues = "https://github.com/packing-box/python-exeplot/issues"
+repository = "https://github.com/packing-box/python-exeplot"
 
 [project.scripts]
 exeplot = "exeplot.__main__:main"

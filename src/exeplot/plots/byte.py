@@ -1,6 +1,7 @@
 # -*- coding: UTF-8 -*-
-from .__common__ import _human_readable_size, Binary, COLORS
+from .__common__ import Binary, COLORS
 from ..__conf__ import save_figure
+from ..utils import human_readable_size
 
 
 def arguments(parser):

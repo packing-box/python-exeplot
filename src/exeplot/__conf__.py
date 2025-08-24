@@ -1,6 +1,7 @@
 # -*- coding: UTF-8 -*-
 import logging
 import matplotlib.pyplot as plt
+import numpy
 from functools import wraps
 
 
@@ -17,6 +18,8 @@ config = {
     'style':          "default",
     'transparent':    False,
 }
+
+numpy.int = numpy.int_  # dirty fix to "AttributeError: module 'numpy' has no attribute 'int'."
 
 
 def configure():  # pragma: no cover

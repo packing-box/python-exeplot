@@ -56,12 +56,18 @@ class TestPlotOptions(TestCase):
         for path in iter_files():
             print(f"plotting entropy of {path} (sublabel='size-ep-ent',scale=True,target='test.exe')...")
             entropy(path, sublabel="size-ep-ent", scale=True, target="test")
-        print(f"plotting entropy of {path}.exe and {path}.elf (labels=['PE', lambda x:'ELF'],sublabel='size-ep-ent',scale=True)...")
+        print(f"plotting entropy of {path}.exe and {path}.elf (labels=['PE', lambda x:'ELF'],sublabel='size-ep-ent',"
+              "scale=True)...")
         path = os.path.join(os.path.dirname(__file__), "hello")
-        entropy(f"{path}.exe", f"{path}.elf", labels=["PE", lambda x: "ELF"], sublabel="size-ep-ent", scale=True)
+        for img in entropy(f"{path}.exe", f"{path}.elf", labels=["PE", lambda x: "ELF"], sublabel="size-ep-ent",
+                           scale=True):
+            os.remove(img)
+            plt.clf()
     
     def test_pie_plot_function(self):
         for path in iter_files():
             print(f"plotting pie of {path} (donut=True)...")
-            pie(path, donut=True)
+            for img in pie(path, donut=True):
+                os.remove(img)
+                plt.clf()
 

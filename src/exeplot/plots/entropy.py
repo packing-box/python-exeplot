@@ -1,8 +1,7 @@
 # -*- coding: UTF-8 -*-
-from math import log2
-
 from .__common__ import mean, Binary, COLORS, MIN_ZONE_WIDTH, N_SAMPLES, SUBLABELS
 from ..__conf__ import save_figure
+from ..utils import shannon_entropy
 
 
 def arguments(parser):
@@ -26,12 +25,11 @@ def data(executable, n_samples=N_SAMPLES, window_size=lambda s: 2*s, **kwargs):
     :param n_samples:   number of samples of entropy required
     :param window_size: window size for computing the entropy
     """
-    _entropy = lambda b: -sum([p*log2(p) for p in [float(ctr)/len(b) for ctr in [b.count(c) for c in set(b)]]]) or 0.
     binary = Binary(executable)
     data = {'hash': binary.hash, 'name': binary.basename, 'size': binary.size, 'type': binary.type,
             'entropy': [], 'sections': []}
     # compute window-based entropy
-    data['entropy*'] = _entropy(binary.rawbytes)
+    data['entropy*'] = shannon_entropy(binary.rawbytes)
     step, cs = abs(binary.size // n_samples), binary.size / n_samples  # chunk size
     if isinstance(window_size, type(lambda: 0)):
         window_size = window_size(step)
@@ -47,7 +45,7 @@ def data(executable, n_samples=N_SAMPLES, window_size=lambda s: 2*s, **kwargs):
             window += f.read(new_pos - cur_pos if i > 0 else winter)
             window = window[max(0, len(window)-window_size) if cur_pos + winter < binary.size else step:]
             # compute entropy
-            data['entropy'].append(_entropy(window)/8.)
+            data['entropy'].append(shannon_entropy(window)/8.)
     # compute other characteristics using the Binary instance parsed with LIEF
     # convert to 3-tuple (EP offset on plot, EP file offset, section name containing EP)
     ep, ep_sec = binary.entrypoint, binary.entrypoint_section

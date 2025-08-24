@@ -3,6 +3,8 @@ import os
 from functools import cached_property
 from statistics import mean
 
+from ..utils import *
+
 
 CACHE_DIR = os.path.expanduser("~/.exeplot")
 # https://matplotlib.org/2.0.2/examples/color/named_colors.html
@@ -48,34 +50,15 @@ N_SAMPLES = 2048
 SHADOW = {'shade': .3, 'ox': .005, 'oy': -.005, 'linewidth': 0.}
 SUBLABELS = {
     'ep':          lambda d: "EP at 0x%.8x in %s" % d['ep'][1:],
-    'size':        lambda d: "Size = %s" % _human_readable_size(d['size'], 1),
+    'size':        lambda d: "Size = %s" % human_readable_size(d['size'], 1),
     'size-ep':     lambda d: "Size = %s\nEP at 0x%.8x in %s" % \
-                             (_human_readable_size(d['size'], 1), d['ep'][1], d['ep'][2]),
+                             (human_readable_size(d['size'], 1), d['ep'][1], d['ep'][2]),
     'size-ent':    lambda d: "Size = %s\nAverage entropy: %.2f\nOverall entropy: %.2f" % \
-                             (_human_readable_size(d['size'], 1), mean(d['entropy']) * 8, d['entropy*']),
+                             (human_readable_size(d['size'], 1), mean(d['entropy']) * 8, d['entropy*']),
     'size-ep-ent': lambda d: "Size = %s\nEP at 0x%.8x in %s\nAverage entropy: %.2f\nOverall entropy: %.2f" % \
-                             (_human_readable_size(d['size'], 1), d['ep'][1], d['ep'][2], mean(d['entropy']) * 8,
+                             (human_readable_size(d['size'], 1), d['ep'][1], d['ep'][2], mean(d['entropy']) * 8,
                               d['entropy*']),
 }
-
-
-def _ensure_str(s, encoding='utf-8', errors='strict'):
-    if isinstance(s, bytes):
-        try:
-            return s.decode(encoding, errors)
-        except:
-            return s.decode("latin-1")
-    elif not isinstance(s, (str, bytes)):
-        raise TypeError("not expecting type '%s'" % type(s))
-    return s
-
-
-def _human_readable_size(size, precision=0):
-    i, units = 0, ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"]
-    while size >= 1024 and i < len(units)-1:
-        i += 1
-        size /= 1024.0
-    return "%.*f%s" % (precision, size, units[i])
 
 
 class Binary:
@@ -132,7 +115,7 @@ class Binary:
             h_len = b.header.header_size + b.header.program_header_size * b.header.numberof_segments
         elif self.type == "MachO":
             h_len = [28, 32][str(b.header.magic)[-3:] == "_64"] + b.header.sizeof_cmds
-        yield 0, f"[0] Header ({_human_readable_size(h_len)})", 0, h_len, "black"
+        yield 0, f"[0] Header ({human_readable_size(h_len)})", 0, h_len, "black"
         # then handle binary's sections
         color_cursor, i = 0, 1
         for section in sorted(b.sections, key=lambda s: s.offset):
@@ -145,18 +128,18 @@ class Binary:
                 c = co[color_cursor % len(co)]
                 color_cursor += 1
             start, end = section.offset, section.offset + section.size
-            yield i, f"[{i}] {self.section_names[section.name]} ({_human_readable_size(end - start)})", start, end, c
+            yield i, f"[{i}] {self.section_names[section.name]} ({human_readable_size(end - start)})", start, end, c
             i += 1
         # sections header at the end for ELF files
         if self.type == "ELF":
             start, end = end, end + b.header.section_header_size * b.header.numberof_sections
-            yield i, f"[{i}] Section Header ({_human_readable_size(end - start)})", start, end, "black"
+            yield i, f"[{i}] Section Header ({human_readable_size(end - start)})", start, end, "black"
             i += 1
         # finally, handle the overlay
         start, end = self.size - b.overlay.nbytes, self.size
-        yield i, f"[{i}] Overlay ({_human_readable_size(end - start)})", start, self.size, "lightgray"
+        yield i, f"[{i}] Overlay ({human_readable_size(end - start)})", start, self.size, "lightgray"
         i += 1
-        yield i, f"TOTAL: {_human_readable_size(self.size)}", None, None, "white"
+        yield i, f"TOTAL: {human_readable_size(self.size)}", None, None, "white"
     
     def __segments_data(self):
         b = self.__binary
@@ -164,11 +147,11 @@ class Binary:
             return  # segments only apply to ELF and MachO
         elif self.type == "ELF":
             for i, s in enumerate(sorted(b.segments, key=lambda x: (x.file_offset, x.physical_size))):
-                yield i, f"[{i}] {str(s.type).split('.')[1]} ({_human_readable_size(s.physical_size)})", \
+                yield i, f"[{i}] {str(s.type).split('.')[1]} ({human_readable_size(s.physical_size)})", \
                       s.file_offset, s.file_offset+s.physical_size, "lightgray"
         elif self.type == "MachO":
             for i, s in enumerate(sorted(b.segments, key=lambda x: (x.file_offset, x.file_size))):
-                yield i, f"[{i}] {s.name} ({_human_readable_size(s.file_size)})", \
+                yield i, f"[{i}] {s.name} ({human_readable_size(s.file_size)})", \
                       s.file_offset, s.file_offset+s.file_size, "lightgray"
     
     def _data(self, segments=False, overlap=False):
@@ -255,7 +238,7 @@ class Binary:
     
     @cached_property        
     def section_names(self):
-        names = {s.name: _ensure_str(s.name).strip("\x00") or "<empty>" for s in self.__binary.sections}
+        names = {s.name: ensure_str(s.name).strip("\x00") or "<empty>" for s in self.__binary.sections}
         # names from string table only applies to PE
         if self.type != "PE":
             return names
