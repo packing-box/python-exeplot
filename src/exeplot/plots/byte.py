@@ -96,5 +96,4 @@ def plot(executable, height=600, **kwargs):
         plt.suptitle(binary.hash, x=(fsp.right+fsp.left)/2, y=.88, **kwargs['annotation-font'])  # y=fsp.top*1.02
     plt.axis("off")
     plt.imshow(img)
-plot.__args__ = arguments
 

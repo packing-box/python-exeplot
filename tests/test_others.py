@@ -20,6 +20,7 @@ class TestOthers(TestCase):
 
 class TestUtils(TestCase):
     def test_ngrams_functions(self):
+        self.assertRaises(TypeError, ngrams_counts, 123)
         self.assertTrue(isinstance(ngrams_counts(seq := b"\x00" * 4 + os.urandom(120) + b"\xff" * 4), Counter))
         class Test:
             bytes = seq

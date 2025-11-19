@@ -22,6 +22,19 @@ config = {
 numpy.int = numpy.int_  # dirty fix to "AttributeError: module 'numpy' has no attribute 'int'."
 
 
+def check_imports(*names):
+    import warnings
+    from inspect import currentframe
+    glob = currentframe().f_back.f_globals
+    for name in names:
+        try:
+            __import__(name)
+            glob['_IMP'] = True & glob.get('_IMP', True)
+        except Exception as e:  # pragma: no cover
+            warnings.warn(f"{name} import failed: {e} ({type(e).__name__})", ImportWarning)
+            glob['_IMP'] = False
+
+
 def configure():  # pragma: no cover
     from configparser import ConfigParser
     from os.path import exists, expanduser
@@ -89,6 +102,8 @@ def save_figure(f):
             plt.savefig(img, **kw_plot)
             logger.debug(f"> saved to {img}...")
             r.append(img)
+            plt.clf()
+            plt.close()
         return r
     return _wrapper
 

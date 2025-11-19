@@ -41,7 +41,7 @@ dynamic = ["version"]
 graph = [
   "angr>=9.2",
   "networkx>=3.4.2",
-  "numpy<2",  # required until angr gets compatible with numpy>=2
+  "numpy",
   "pygraphviz>=1.14",
 ]
 

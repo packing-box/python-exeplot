@@ -194,5 +194,4 @@ def plot(*filenames, labels=None, sublabel=None, scale=False, target=None, **kwa
     h.append(Patch(facecolor="lightgray")), l.append("Overlay")
     if len(h) > 0:
         plt.figlegend(h, l, loc=lloc, ncol=1 if lloc_side else len(l), prop={'size': fs_ref*.7})
-plot.__args__ = arguments
 

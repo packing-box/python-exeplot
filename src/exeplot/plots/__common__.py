@@ -78,7 +78,7 @@ class Binary:
         if self.__binary is None:
             raise TypeError("Not an executable")
         self.type = str(type(self.__binary)).split(".")[2]
-        if self.type not in ["ELF", "MachO", "PE"]:
+        if self.type not in ["ELF", "MachO", "PE"]:  # pragma: no cover
             raise OSError("Unknown format")
     
     def __getattr__(self, name):
@@ -103,7 +103,7 @@ class Binary:
             elif self.type == "PE":
                 self.__ep = b.rva_to_offset(b.optional_header.addressof_entrypoint)
                 self.__ep_section = b.section_from_rva(b.optional_header.addressof_entrypoint)
-        except (AttributeError, TypeError):
+        except (AttributeError, TypeError):  # pragma: no cover
             self.__ep, self.__ep_section = None, None
     
     def __sections_data(self):
@@ -244,7 +244,7 @@ class Binary:
             return names
         # start parsing section names
         from re import match
-        if all(match(r"/\d+$", n) is None for n in names.keys()):
+        if all(match(r"/\d+$", n) is None for n in names.keys()):  # pragma: no cover
             return names
         real_names = {}
         str_table_offset = self.__binary.header.pointerto_symbol_table + self.__binary.header.numberof_symbols * 18
