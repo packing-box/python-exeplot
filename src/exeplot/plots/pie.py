@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 from .__common__ import Binary, COLORS, SHADOW
-from ..__conf__ import save_figure
+from ..__conf__ import *
 from ..utils import human_readable_size
 
 
@@ -15,6 +15,8 @@ def plot(executable, donut=False, **kwargs):
     """ draw a pie chart of the sections of the input binary """
     import matplotlib.pyplot as plt
     from math import ceil
+    # ------------------------------------------------- DRAW THE PLOT --------------------------------------------------
+    logger.debug("> computing pie sections")
     fs_ref = kwargs['config']['font_size']
     binary = Binary(executable)
     fig, ax = plt.subplots(figsize=(6, 3), subplot_kw=dict(aspect="equal"))
@@ -27,6 +29,8 @@ def plot(executable, donut=False, **kwargs):
     pie_kw = {'shadow': SHADOW} if kwargs['config']['shadow'] else {}
     _, texts = ax.pie(data, colors=colors, labels=labels, textprops=txt_kw, labeldistance=.55, startangle=90,
                            wedgeprops={'width': [1., .55][donut]}, **pie_kw)
+    # ---------------------------------------------- CONFIGURE THE FIGURE ----------------------------------------------
+    logger.debug("> configuring the figure")
     ax.legend([plt.Rectangle((0, 0), 1, 1, color=c) for c in legend['colors']], legend['texts'], loc="center left",
               bbox_to_anchor=(1, 0, 0.5, 1), ncol=ncols, fontsize=ceil(fs_ref*.7))
     plt.setp(texts, size=fs_ref*.8, weight="bold")

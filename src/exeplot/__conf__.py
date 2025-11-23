@@ -1,15 +1,22 @@
 # -*- coding: UTF-8 -*-
 import logging
-import matplotlib.pyplot as plt
 import numpy
 from functools import wraps
+from warnings import filterwarnings
+
+filterwarnings("ignore", "Unable to import Axes3D.")
+
+import matplotlib.pyplot as plt
+
+
+__all__ = ["check_imports", "config", "logger", "save_figure"]
 
 
 logger = logging.getLogger("exeplot")
 config = {
     'bbox_inches':    "tight",
-#    'colormap_main':  "RdYlGn_r",
-#    'colormap_other': "jet",
+    'colormap_main':  "RdYlGn_r",
+    'colormap_other': "jet",
     'dpi':            300,
     'font_family':    "serif",
     'font_size':      10,
@@ -99,6 +106,7 @@ def save_figure(f):
                 ns.update(locals())
                 interact(local=ns)
             logger.info(f"Saving to {img}...")
+            plt.set_cmap("gray" if kw.get('grayscale', False) else config['colormap_main'])
             plt.savefig(img, **kw_plot)
             logger.debug(f"> saved to {img}...")
             r.append(img)

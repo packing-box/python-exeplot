@@ -41,7 +41,7 @@ COLORS = {
     'cstring':  "navy",           # string table
     'const':    "cornflowerblue", # read-only data
     'literal4': "blue",           # 4-byte literal values
-    'literal4': "mediumblue",     # 8-byte literal values
+    'literal8': "mediumblue",     # 8-byte literal values
     'common':   "royalblue",      # uninitialized imported symbol definitions
 }
 MIN_ZONE_WIDTH = 3  # minimum number of samples on the entropy plot for a section (so that it can still be visible even

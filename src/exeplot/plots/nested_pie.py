@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 from .__common__ import Binary, COLORS, SHADOW
-from ..__conf__ import save_figure
+from ..__conf__ import *
 from ..utils import human_readable_size
 
 
@@ -14,19 +14,24 @@ def plot(executable, **kwargs):
     """ draw a nested pie chart of segments (if relevant) and sections (including overlaps) of the input binary """
     import matplotlib.pyplot as plt
     from math import ceil
+    # ------------------------------------------------- DRAW THE PLOT --------------------------------------------------
     binary = Binary(executable)
     fig, ax = plt.subplots(figsize=(6, 3), subplot_kw=dict(aspect="equal"))
     pie_kw = {'shadow': SHADOW} if kwargs['config']['shadow'] else {}
     seg_layers = sum(1 for _ in binary._data(segments=True, overlap=True))
     if binary.type != "PE":
+        logger.debug("> computing pie segments")
         for i, x, w, labels, colors, legend in binary._data(segments=True, overlap=True):
             size = .4 / seg_layers
             ax.pie(w, radius=.45-i*size, colors=colors, startangle=90,
                    wedgeprops={'width': size, 'edgecolor': "w", 'linewidth': 1}, **pie_kw)
+    logger.debug("> computing pie sections")
     sec_layers = sum(1 for _ in binary._data(overlap=True))
     for i, x, w, labels, colors, legend in binary._data(overlap=True):
         size = .42 / sec_layers
         ax.pie(w, radius=1-i*size, colors=colors, startangle=90, wedgeprops={'width': size}, **pie_kw)
+    # ---------------------------------------------- CONFIGURE THE FIGURE ----------------------------------------------
+    logger.debug("> configuring the figure")
     ncols = ceil(len(legend['colors']) / 12)
     ax.legend([plt.Rectangle((0, 0), 1, 1, color=c) for c in legend['colors']], legend['texts'], loc="center left",
               bbox_to_anchor=(1, 0, 0.5, 1), ncol=ncols, fontsize=ceil(kwargs['config']['font_size']*.7))

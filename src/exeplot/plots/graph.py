@@ -2,15 +2,10 @@
 import matplotlib.pyplot as plt
 
 from .__common__ import Binary, CACHE_DIR, COLORS, MIN_ZONE_WIDTH
-from ..__conf__ import check_imports, save_figure
-
-try:
-    # dirty fix to known issue with angr: AttributeError: module 'unicorn' has no attribute 'UC_ARCH_RISCV'.
-    __import__("unicorn").UC_ARCH_RISCV = 8
-except ModuleNotFoundError: # pragma: no cover
-    pass  # 'unicorn' is an optional dependency of 'angr' ; fix it only if it is already installed
+from ..__conf__ import *
 
 check_imports("angr", "networkx", "pygraphviz")
+
 
 _DEFAULT_ALGORITHM, _DEFAULT_ENGINE = "fast", "default"
 _ENGINES = ["default", "pcode", "vex"]
@@ -32,6 +27,8 @@ def plot(executable, algorithm=_DEFAULT_ALGORITHM, engine=_DEFAULT_ENGINE, **kwa
     import networkx as nx
     import pygraphviz as pgv
     from math import ceil, log2
+    # ------------------------------------------------- DRAW THE PLOT --------------------------------------------------
+    logger.debug("> computing the executable's CFG")
     engine = {k: getattr(angr.engines, "UberEngine" if k != "pcode" else f"UberEngine{k.capitalize()}") \
               for k in _ENGINES}[engine]
     project = angr.Project(executable, auto_load_libs=False, engine=engine)
@@ -40,6 +37,8 @@ def plot(executable, algorithm=_DEFAULT_ALGORITHM, engine=_DEFAULT_ENGINE, **kwa
     for node in cfg.graph.nodes():
         labels[node] = f"{node.name}\n0x{node.addr:x}" if hasattr(node, "name") and node.name else f"0x{node.addr:x}"
         node_colors.append("red" if node.function_address == node.addr else "lightblue")
+    # ---------------------------------------------- CONFIGURE THE FIGURE ----------------------------------------------
+    logger.debug("> configuring the figure")
     n = max(10, min(30, ceil(log2(n_nodes := len(cfg.graph.nodes()) + 1) * 2)))
     fig = plt.figure(figsize=(n, n))
     nx.draw(cfg.graph, nx.kamada_kawai_layout(cfg.graph), fig.gca(), font_size=8, with_labels=True, labels=labels,

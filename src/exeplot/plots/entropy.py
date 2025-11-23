@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 from .__common__ import mean, Binary, COLORS, MIN_ZONE_WIDTH, N_SAMPLES, SUBLABELS
-from ..__conf__ import save_figure
+from ..__conf__ import *
 from ..utils import shannon_entropy
 
 
@@ -25,7 +25,7 @@ def data(executable, n_samples=N_SAMPLES, window_size=lambda s: 2*s, **kwargs):
     :param n_samples:   number of samples of entropy required
     :param window_size: window size for computing the entropy
     """
-    binary = Binary(executable)
+    binary = executable if isinstance(executable, Binary) else Binary(executable)
     data = {'hash': binary.hash, 'name': binary.basename, 'size': binary.size, 'type': binary.type,
             'entropy': [], 'sections': []}
     # compute window-based entropy
@@ -94,6 +94,7 @@ def plot(*filenames, labels=None, sublabel=None, scale=False, target=None, **kwa
     from os import fstat
     if len(filenames) == 0:
         raise ValueError("No executable to plot")
+    # ------------------------------------------------- DRAW THE PLOT --------------------------------------------------
     lloc, title = kwargs.get('legend_location', "lower center"), not kwargs.get('no_title', False)
     lloc_side = lloc.split()[1] in ["left", "right"]
     nf, N_TOP, N_TOP2, N_BOT, N_BOT2 = len(filenames), 1.15, 1.37, -.15, -.37
@@ -103,12 +104,13 @@ def plot(*filenames, labels=None, sublabel=None, scale=False, target=None, **kwa
     (objs[0] if nf+[0, 1][title] > 1 else objs).axis("off")
     ref_size, ref_n, fs_ref = None, kwargs.get('n_samples', N_SAMPLES), kwargs['config']['font_size']
     for i, filepath in enumerate(filenames):
+        logger.debug(f"> plotting binary '{filepath}'")
+        binary = Executable(filepath)
         if scale and ref_size:
-            with open(filepath, "rb") as f:
-                size = fstat(f.fileno()).st_size
-            kwargs['n_samples'] = int(ref_n * size / ref_size)
+            binary.rawbytes  # triggers the computation of binary.__size
+            kwargs['n_samples'] = int(ref_n * binary.size / ref_size)
         obj = objs[i+[0, 1][title]] if nf+[0, 1][title] > 1 else objs
-        d = data(filepath, **kwargs)
+        d = data(binary, **kwargs)
         n, label = len(d['entropy']), None
         if not ref_size:
             ref_size = d['size']
@@ -180,13 +182,16 @@ def plot(*filenames, labels=None, sublabel=None, scale=False, target=None, **kwa
             # draw entropy
             obj.plot(x, d['entropy'][start:end+1], c=c, zorder=10, lw=.1)
             obj.fill_between(x, [0] * len(x), d['entropy'][start:end+1], facecolor=c)
-            l = obj.hlines(y=mean(d['entropy'][start:end+1]), xmin=x[0], xmax=x[-1], color="black", linewidth=.5, linestyle=(0, (5, 5)))
+            l = obj.hlines(y=mean(d['entropy'][start:end+1]), xmin=x[0], xmax=x[-1], color="black", linewidth=.5,
+                           linestyle=(0, (5, 5)))
             i += 1
         if len(d['sections']) > 0:
             l.set_label("Average entropy of section")
         else:
             obj.text(.5, ref_point, "Could not parse sections", fontsize=fs_ref*1.6, color="red", ha="center",
                      va="center")
+    # ---------------------------------------------- CONFIGURE THE FIGURE ----------------------------------------------
+    logger.debug("> configuring the figure")
     plt.subplots_adjust(left=[.15, .02][labels is None and sublabel is None], right=[1.02, .82][lloc_side],
                         bottom=.5/max(1.75, nf))
     h, l = (objs[[0, 1][title]] if nf+[0, 1][title] > 1 else objs).get_legend_handles_labels()

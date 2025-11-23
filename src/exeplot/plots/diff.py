@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 from .__common__ import Binary, CACHE_DIR, COLORS, MIN_ZONE_WIDTH
-from ..__conf__ import save_figure
+from ..__conf__ import *
 
 
 def arguments(parser):
@@ -67,10 +67,15 @@ def plot(executable, executable2, legend1="", legend2="", **kwargs):
         cache = Memory(CACHE_DIR, verbose=0).cache
     except ImportError:
         cache = lambda x: x  # do nothing if joblib not installed
+    bin1, bin2 = Binary(executable), Binary(executable2)
+    if bin1.type != bin2.type:
+        raise ValueError(f"Inputs executables have different types ({bin1.type} != {bin2.type})")
     # inner function for caching sequence matches)
     @cache
     def byte_differences(bytes1, bytes2):
         return zip(*SequenceMatcher(a=bytes1, b=bytes2).get_opcodes())
+    # ------------------------------------------------- DRAW THE PLOT --------------------------------------------------
+    logger.debug("> computing the difference between executables' raw bytes")
     fs_ref = kwargs['config']['font_size']
     title = not kwargs.get('no_title', False)
     lloc = kwargs.get('legend_location', "lower right")
@@ -81,16 +86,13 @@ def plot(executable, executable2, legend1="", legend2="", **kwargs):
     fig.tight_layout(pad=2)
     objs[-1].axis("off")
     values, colors = {'delete': 0, 'replace': 1, 'equal': 2, 'insert': 3}, ["red", "gold", "lightgray", "green"]
-    bin1, bin2 = Binary(executable), Binary(executable2)
-    if bin1.type != bin2.type:
-        raise ValueError(f"Inputs executables have different types ({bin1.type} != {bin2.type})")
     if title:
         fig.suptitle(f"Byte-wise difference of {bin1.type} files: {bin1.basename} VS {bin2.basename}",
                      x=[.5, .55][legend1 is None], y=1, ha="center", va="bottom", **kwargs['title-font'])
     legend1, legend2 = legend1 or bin1.basename, legend2 or bin2.basename
-    (lg := kwargs['logger']).info("Matching binaries' byte sequences, this may take a while...")
+    logger.info("Matching binaries' byte sequences, this may take a while...")
     tags, alo, ahi, blo, bhi = byte_differences(bin1.rawbytes, bin2.rawbytes)
-    lg.debug("Plotting binaries...")
+    logger.debug("> plotting binaries")
     text_x = -0.012*max(bin1.size*(len(legend1)+3), bin2.size*(len(legend2)+3))
     for i, d in enumerate([(bin1, zip(tags, alo, ahi), legend1), (bin2, zip(tags, blo, bhi), legend2)]):
         binary, opcodes, label = d
@@ -129,6 +131,8 @@ def plot(executable, executable2, legend1="", legend2="", **kwargs):
         if len(sections) == 0:
             obj.text(.5, ref_point, "Could not parse sections", fontsize=fs_ref*1.6, color="red", ha="center",
                      va="center")
+    # ---------------------------------------------- CONFIGURE THE FIGURE ----------------------------------------------
+    logger.debug("> configuring the figure")
     cb = plt.colorbar(ScalarMappable(cmap=ListedColormap(colors, N=4)),
                       location='bottom', ax=objs[-1], fraction=0.3, aspect=50, ticks=[0.125, 0.375, 0.625, 0.875])
     cb.set_ticklabels(['removed', 'modified', 'untouched', 'added'])

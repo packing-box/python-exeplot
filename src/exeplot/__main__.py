@@ -18,6 +18,7 @@ def _setup(parser):  # pragma: no cover
     if hasattr(args, "verbose"):
         import logging
         logging.basicConfig(level=[logging.INFO, logging.DEBUG][args.verbose])
+        logging.getLogger("exeplot").level = [logging.INFO, logging.DEBUG][args.verbose]
     return args
 
 
