@@ -43,6 +43,7 @@ graph = [
   "networkx>=3.4.2",
   "numpy",
   "pygraphviz>=1.14",
+  "unicorn>2",
 ]
 
 [project.readme]

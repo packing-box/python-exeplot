@@ -105,7 +105,7 @@ def plot(*filenames, labels=None, sublabel=None, scale=False, target=None, **kwa
     ref_size, ref_n, fs_ref = None, kwargs.get('n_samples', N_SAMPLES), kwargs['config']['font_size']
     for i, filepath in enumerate(filenames):
         logger.debug(f"> plotting binary '{filepath}'")
-        binary = Executable(filepath)
+        binary = Binary(filepath)
         if scale and ref_size:
             binary.rawbytes  # triggers the computation of binary.__size
             kwargs['n_samples'] = int(ref_n * binary.size / ref_size)
