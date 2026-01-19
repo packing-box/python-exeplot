@@ -26,6 +26,14 @@ $ exeplot byte calc_packed.exe
 
 ![Byte plot of `calc_packed.exe`](https://github.com/packing-box/python-exeplot/blob/main/docs/pages/img/calc_packed_byte.png?raw=true)
 
+Draw a simplified byte plot of `calc_packed.exe`:
+
+```sh
+$ exeplot byte calc_packed.exe --no-title --no-legend
+```
+
+![Simplified byte plot of `calc_packed.exe`](https://github.com/packing-box/python-exeplot/blob/main/docs/pages/img/calc_packed_byte2.png?raw=true)
+
 Draw a pie plot of `calc_packed.exe`:
 
 ```sh
@@ -49,6 +57,14 @@ $ exeplot entropy calc_orig.exe calc_packed.exe
 ```
 
 ![Entropy plot of `calc_orig.exe` and `calc_packed.exe`](https://github.com/packing-box/python-exeplot/blob/main/docs/pages/img/calc_orig_entropy.png?raw=true)
+
+Draw a simplified entropy plot of `calc_packed.exe`:
+
+```sh
+$ exeplot entropy calc_packed.exe --no-title --no-legend --no-label --no-entrypoint
+```
+
+![Simplified entropy plot of `calc_packed.exe`](https://github.com/packing-box/python-exeplot/blob/main/docs/pages/img/calc_packed_entropy.png?raw=true)
 
 
 ## :clap: Supporters

@@ -58,8 +58,7 @@ def data(executable, n_samples=N_SAMPLES, window_size=lambda s: 2*s, **kwargs):
         name = binary.section_names[section.name]
         start = max(data['sections'][-1][1] if len(data['sections']) > 0 else 0, int(section.offset // cs))
         rawsize = max(section.size, len(section.content)) # take section header's raw size but consider real size too
-        max_end = min(max(start + MIN_ZONE_WIDTH, int((section.offset + rawsize) // cs)),
-                      len(data['entropy']) - 1)
+        max_end = min(max(start + MIN_ZONE_WIDTH, int((section.offset + rawsize) // cs)), len(data['entropy']) - 1)
         data['sections'].append(__d(int(min(start, max_end - MIN_ZONE_WIDTH)), int(max_end), name))
     # adjust the entry point (be sure that its position on the plot is within the EP section)
     if data['ep']:
@@ -121,36 +120,37 @@ def plot(*filenames, labels=None, sublabel=None, scale=False, target=None, **kwa
             fig.suptitle(f"Entropy per section of {d['type']} file: {target or d['name']}", x=x_t, y=y_t,
                          ha="center", va="bottom", **kwargs['title-font'])
         # set the label and sublabel and display them
-        try:
-            label = labels[i]
-            if isinstance(label, type(lambda: 0)):
-                label = label(d)
-        except:
-            pass
         ref_point = .55
-        if sublabel and not (isinstance(sublabel, str) and "ep" in sublabel and d['ep'] is None):
-            if isinstance(sublabel, str):
-                sublabel = SUBLABELS.get(sublabel)
-            sl = sublabel(d) if isinstance(sublabel, type(lambda: 0)) else None
-            if sl:
-                nl, y_pos, f_color = len(sl.split("\n")), ref_point, "black"
-                if label:
-                    f_size, f_color = fs_ref*.6 if nl <= 2 else fs_ref*.5, "gray"
-                    y_pos = max(0., ref_point - nl * [.16, .12, .09, .08][min(4, nl)-1])
-                else:
-                    f_size = fs_ref * [.7, .6, .5][min(3, nl)-1]
-                obj.text(s=sl, x=-420., y=y_pos, fontsize=f_size, color=f_color, ha="left", va="center")
-        if label:
-            y_pos = ref_point
-            if sublabel:
-                nl = len(sl.split("\n"))
-                y_pos = min(1.3, ref_point + .3 + nl * [.16, .12, .09, .08][min(4, nl)-1])
-            obj.text(s=label, x=-420., y=y_pos, fontsize=fs_ref, ha="left", va="center")
-            h, h_midlen = d['hash'], round(len(d['hash'])/2+.5)
-            h = f"{h[:h_midlen]}\n{h[h_midlen:]}"
-            obj.text(s=h, x=-420., y=y_pos-.35, fontsize=fs_ref*.5, ha="left", va="center")
+        if not kwargs.get('no_label', False):
+            try:
+                label = labels[i]
+                if isinstance(label, type(lambda: 0)):
+                    label = label(d)
+            except:
+                pass
+            if sublabel and not (isinstance(sublabel, str) and "ep" in sublabel and d['ep'] is None):
+                if isinstance(sublabel, str):
+                    sublabel = SUBLABELS.get(sublabel)
+                sl = sublabel(d) if isinstance(sublabel, type(lambda: 0)) else None
+                if sl:
+                    nl, y_pos, f_color = len(sl.split("\n")), ref_point, "black"
+                    if label:
+                        f_size, f_color = fs_ref*.6 if nl <= 2 else fs_ref*.5, "gray"
+                        y_pos = max(0., ref_point - nl * [.16, .12, .09, .08][min(4, nl)-1])
+                    else:
+                        f_size = fs_ref * [.7, .6, .5][min(3, nl)-1]
+                    obj.text(s=sl, x=-420., y=y_pos, fontsize=f_size, color=f_color, ha="left", va="center")
+            if label:
+                y_pos = ref_point
+                if sublabel:
+                    nl = len(sl.split("\n"))
+                    y_pos = min(1.3, ref_point + .3 + nl * [.16, .12, .09, .08][min(4, nl)-1])
+                obj.text(s=label, x=-420., y=y_pos, fontsize=fs_ref, ha="left", va="center")
+                h, h_midlen = d['hash'], round(len(d['hash'])/2+.5)
+                h = f"{h[:h_midlen]}\n{h[h_midlen:]}"
+                obj.text(s=h, x=-420., y=y_pos-.35, fontsize=fs_ref*.5, ha="left", va="center")
         # display the entry point
-        if d['ep']:
+        if d['ep'] and not kwargs.get('no_entrypoint', False):
             obj.vlines(x=d['ep'][0], ymin=0, ymax=1, color="r", zorder=11).set_label("Entry point")
             obj.text(d['ep'][0], -.15, "______", c="r", ha="center", rotation=90, size=.8,
                      bbox={'boxstyle': "rarrow", 'fc': "r", 'ec': "r", 'lw': 1})
@@ -166,7 +166,7 @@ def plot(*filenames, labels=None, sublabel=None, scale=False, target=None, **kwa
                 color_cursor += 1
             # draw the section
             obj.fill_between(x, 0, 1, facecolor=c, alpha=.2)
-            if name not in ["Headers", "Overlay"]:
+            if name not in ["Headers", "Overlay"] and not kwargs.get('no_label', False):
                 if last is None or (start + end) // 2 - (last[0] + last[1]) // 2 > n // 12:
                     pos_y = N_TOP
                 else:
@@ -197,6 +197,6 @@ def plot(*filenames, labels=None, sublabel=None, scale=False, target=None, **kwa
     h, l = (objs[[0, 1][title]] if nf+[0, 1][title] > 1 else objs).get_legend_handles_labels()
     h.append(Patch(facecolor="black")), l.append("Headers")
     h.append(Patch(facecolor="lightgray")), l.append("Overlay")
-    if len(h) > 0:
+    if len(h) > 0 and not kwargs.get('no_legend', False):
         plt.figlegend(h, l, loc=lloc, ncol=1 if lloc_side else len(l), prop={'size': fs_ref*.7})
 

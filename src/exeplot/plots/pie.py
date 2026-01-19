@@ -23,16 +23,19 @@ def plot(executable, donut=False, **kwargs):
     for _, _, data, _, colors, legend in binary._data():
         pass
     ncols, n = ceil(len(legend['colors']) / 12), sum(data)
-    labels = [f"{100 * d / n:.1f}%" if round(d / n, 2) >= .02 and c != "white" else "" for d, c in zip(data, colors)]
     txt_kw = {k: v for k, v in kwargs['xlabel-font'].items()}
     txt_kw['color'] = "w"
     pie_kw = {'shadow': SHADOW} if kwargs['config']['shadow'] else {}
-    _, texts = ax.pie(data, colors=colors, labels=labels, textprops=txt_kw, labeldistance=.55, startangle=90,
+    if not kwargs.get('no_label', False):
+        pie_kw['labels'] = [f"{100 * d / n:.1f}%" if round(d / n, 2) >= .02 and c != "white" else "" \
+                            for d, c in zip(data, colors)]
+    _, texts = ax.pie(data, colors=colors, textprops=txt_kw, labeldistance=.55, startangle=90,
                            wedgeprops={'width': [1., .55][donut]}, **pie_kw)
     # ---------------------------------------------- CONFIGURE THE FIGURE ----------------------------------------------
     logger.debug("> configuring the figure")
-    ax.legend([plt.Rectangle((0, 0), 1, 1, color=c) for c in legend['colors']], legend['texts'], loc="center left",
-              bbox_to_anchor=(1, 0, 0.5, 1), ncol=ncols, fontsize=ceil(fs_ref*.7))
+    if not kwargs.get('no_legend', False):
+        ax.legend([plt.Rectangle((0, 0), 1, 1, color=c) for c in legend['colors']], legend['texts'], loc="center left",
+                  bbox_to_anchor=(1, 0, 0.5, 1), ncol=ncols, fontsize=ceil(fs_ref*.7))
     plt.setp(texts, size=fs_ref*.8, weight="bold")
     if not kwargs.get('no_title', False):
         fsp = plt.gcf().subplotpars
