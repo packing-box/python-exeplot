@@ -34,6 +34,14 @@ def main():
         plot_func = globals()[plot]
         plot_parser = plot_func.__args__(plots.add_parser(plot, help=plot_func.__doc__.strip(), add_help=False))
         opt = plot_parser.add_argument_group("options")
+        if plot == "diff":
+            opt.add_argument("--no-colormap", action="store_true", help="do not display the color map (default: False)")
+        if plot == "entropy":
+            opt.add_argument("--no-entrypoint", action="store_true",
+                             help="do not display the entry point (default: False)")
+        if plot in ["entropy", "pie"]:
+            opt.add_argument("--no-label", action="store_true", help="do not display the labels (default: False)")
+        opt.add_argument("--no-legend", action="store_true", help="do not display the legend (default: False)")
         opt.add_argument("--no-title", action="store_true", help="do not display the title (default: False)")
         extra = plot_parser.add_argument_group("extra arguments")
         extra.add_argument("-h", "--help", action="help", help="show this help message and exit")

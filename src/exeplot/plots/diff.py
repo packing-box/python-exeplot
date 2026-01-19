@@ -133,13 +133,14 @@ def plot(executable, executable2, legend1="", legend2="", **kwargs):
                      va="center")
     # ---------------------------------------------- CONFIGURE THE FIGURE ----------------------------------------------
     logger.debug("> configuring the figure")
-    cb = plt.colorbar(ScalarMappable(cmap=ListedColormap(colors, N=4)),
-                      location='bottom', ax=objs[-1], fraction=0.3, aspect=50, ticks=[0.125, 0.375, 0.625, 0.875])
-    cb.set_ticklabels(['removed', 'modified', 'untouched', 'added'])
-    cb.ax.tick_params(length=0)
-    cb.outline.set_visible(False)
+    if not kwargs.get('no_colorbar', False):
+        cb = plt.colorbar(ScalarMappable(cmap=ListedColormap(colors, N=4)),
+                          location='bottom', ax=objs[-1], fraction=0.3, aspect=50, ticks=[0.125, 0.375, 0.625, 0.875])
+        cb.set_ticklabels(['removed', 'modified', 'untouched', 'added'])
+        cb.ax.tick_params(length=0)
+        cb.outline.set_visible(False)
     plt.subplots_adjust(left=[.15, .02][legend1 == "" and legend2 == ""], bottom=.5/max(1.75, nf))
     h, l = (objs[int(title)] if nf+int(title) > 1 else objs).get_legend_handles_labels()
-    if len(h) > 0:
+    if len(h) > 0 and not kwargs.get('no_legend', False):
         plt.figlegend(h, l, loc=[.8, .135], ncol=1, prop={'size': fs_ref*.7})
 

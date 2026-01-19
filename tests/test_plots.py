@@ -6,6 +6,7 @@ from exeplot import *
 from exeplot import __all__ as _plots
 from exeplot.__conf__ import configure
 from exeplot.__main__ import _parser
+from itertools import cycle
 from unittest import TestCase
 
 
@@ -69,11 +70,25 @@ class TestPlotOptions(TestCase):
                            scale=True):
             os.remove(img)
             plt.clf()
+        g = cycle(iter_files())
+        for k in ["title", "legend", "label", "entrypoint"]:
+            path, kw = next(g), {(k := f'no_{k}'): True}
+            print(f"plotting entropy of {path} ({k}=True)...")
+            for img in entropy(path, **kw):
+                os.remove(img)
+                plt.clf()
     
     def test_pie_plot_function(self):
         for path in iter_files():
             print(f"plotting pie of {path} (donut=True)...")
             for img in pie(path, donut=True):
+                os.remove(img)
+                plt.clf()
+        g = cycle(iter_files())
+        for k in ["title", "legend", "label"]:
+            path, kw = next(g), {(k := f'no_{k}'): True}
+            print(f"plotting pie of {path} ({k}=True)...")
+            for img in pie(path, **kw):
                 os.remove(img)
                 plt.clf()
 

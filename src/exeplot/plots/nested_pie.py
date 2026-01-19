@@ -32,9 +32,10 @@ def plot(executable, **kwargs):
         ax.pie(w, radius=1-i*size, colors=colors, startangle=90, wedgeprops={'width': size}, **pie_kw)
     # ---------------------------------------------- CONFIGURE THE FIGURE ----------------------------------------------
     logger.debug("> configuring the figure")
-    ncols = ceil(len(legend['colors']) / 12)
-    ax.legend([plt.Rectangle((0, 0), 1, 1, color=c) for c in legend['colors']], legend['texts'], loc="center left",
-              bbox_to_anchor=(1, 0, 0.5, 1), ncol=ncols, fontsize=ceil(kwargs['config']['font_size']*.7))
+    if not kwargs.get('no_legend', False):
+        ncols = ceil(len(legend['colors']) / 12)
+        ax.legend([plt.Rectangle((0, 0), 1, 1, color=c) for c in legend['colors']], legend['texts'], loc="center left",
+                  bbox_to_anchor=(1, 0, 0.5, 1), ncol=ncols, fontsize=ceil(kwargs['config']['font_size']*.7))
     if not kwargs.get('no_title', False):
         fsp = plt.gcf().subplotpars
         plt.title(f"Nested pie plot of {binary.type} file: {binary.basename}", **kwargs['title-font'])
