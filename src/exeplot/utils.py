@@ -31,11 +31,11 @@ def human_readable_size(size: int, precision: int = 0) -> str:
 
 
 def ngrams_counts(byte_obj: bytes | object, n: int = 1, step: int = 1) -> dict[bytes, int]:
-    """ Output the Counter instance for an input byte sequence or byte object based on n-grams.
-         If the input is a byte object, cache the result.
+    """ Output a sorted dictionary of n-gram counts for an input byte sequence or byte object.
+         If the input is a byte object, the result is cached.
     
     :param byte_obj:      byte sequence ('bytes') or byte object with "bytes" and "size" attributes (i.e. pathlib2.Path)
-    :param n: n determining the size of n-grams, defaults to 1
+    :param n:             n determining the size of n-grams, defaults to 1
     :param step:          step for sliding the n-grams
     :param start:         number of bytes to start from
     """
@@ -43,6 +43,10 @@ def ngrams_counts(byte_obj: bytes | object, n: int = 1, step: int = 1) -> dict[b
         raise ValueError("n must be 1, 2, or 3")
     if step <= 0:
         raise ValueError("step must be positive")
+    try:
+        return byte_obj._ngram_counts_cache[n]
+    except (AttributeError, KeyError):
+        pass
     if isinstance(byte_obj, bytes) or hasattr(byte_obj, "bytes"):
         a = np.frombuffer(data := byte_obj if isinstance(byte_obj, bytes) else byte_obj.bytes, dtype=np.uint8)
         l = a.size
@@ -56,6 +60,7 @@ def ngrams_counts(byte_obj: bytes | object, n: int = 1, step: int = 1) -> dict[b
             grams = np.stack((a[0:end:step], a[1:1+end:step]), axis=1) if n == 2 else \
                     np.stack((a[0:end:step], a[1:1+end:step], a[2:2+end:step]), axis=1)
             counts = {bytes(row): int(c) for row, c in zip(*np.unique(grams, axis=0, return_counts=True))}
+        counts = sorted(counts.items(), key=lambda p: p[1], reverse=True)
         if isinstance(byte_obj, bytes):
             return counts
         elif hasattr(byte_obj, "bytes"):
@@ -80,8 +85,7 @@ def ngrams_distribution(byte_obj: bytes | object, n: int = 1, step: int = 1, n_m
     :return:              list of n_most_common (n-gram, count) pairs
     """
     c = ngrams_counts(byte_obj, n, step)
-    n = len(c) if n_most_common is None else n_most_common + n_exclude_top + len(exclude or [])
-    r = sorted(c.items(), key=lambda p: p[1], reverse=True)[:n]
+    r = c[:len(c) if n_most_common is None else n_most_common + n_exclude_top + len(exclude or [])]
     if exclude is not None:
         r = [(ngram, count) for ngram, count in r if ngram not in exclude]
     return r[n_exclude_top:n_exclude_top+(n_most_common or len(c))]
