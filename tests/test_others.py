@@ -24,12 +24,11 @@ class TestUtils(TestCase):
             self.assertRaises(ValueError, ngrams_counts, b"abc", n=n)
         self.assertRaises(ValueError, ngrams_counts, b"abc", step=-1)
         self.assertEqual(ngrams_counts(b"a", n=2), {})
-        self.assertTrue(isinstance(ngrams_counts(seq := b"\x00" * 4 + os.urandom(120) + b"\xff" * 4), dict))
-        self.assertTrue(isinstance(ngrams_counts(seq := b"\x00" * 4 + os.urandom(120) + b"\xff" * 4, n=2), dict))
+        self.assertTrue(isinstance(ngrams_counts(seq := b"\x00" * 4 + os.urandom(120) + b"\xff" * 4), list))
+        self.assertTrue(isinstance(ngrams_counts(seq := b"\x00" * 4 + os.urandom(120) + b"\xff" * 4, n=2), list))
         class Test:
             bytes = seq
-        histogram = ngrams_distribution(t := Test(), exclude=(b"\x00", b"\xff"))
-        self.assertTrue(isinstance(histogram, list))
+        self.assertTrue(isinstance(histogram := ngrams_distribution(t := Test(), exclude=(b"\x00", b"\xff")), list))
         self.assertNotIn(b"\x00", [b for b, c in histogram])
         self.assertNotIn(b"\xff", [b for b, c in histogram])
         histogram2 = ngrams_distribution(t, n_most_common=300)
