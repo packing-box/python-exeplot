@@ -1,11 +1,12 @@
 # -*- coding: UTF-8 -*-
+from argparse import ArgumentParser, Namespace, RawTextHelpFormatter
+
 from .__info__ import __author__, __copyright__, __email__, __license__, __source__, __version__
 from .__init__ import *
 from .__init__ import __all__ as _plots
 
 
-def _parser(name, description, examples):
-    from argparse import ArgumentParser, RawTextHelpFormatter
+def _parser(name: str, description: str, examples: list[str]) -> ArgumentParser:
     descr = f"{name} {__version__}\n\nAuthor   : {__author__} ({__email__})\nCopyright: {__copyright__}\nLicense  :" \
             f" {__license__}\nSource   : {__source__}\n\n{description}.\n\n"
     examples = [f"exeplot {e}" if not e.startswith("exeplot ") else e for e in examples]
@@ -13,7 +14,7 @@ def _parser(name, description, examples):
                           epilog="usage examples:\n  " + "\n  ".join(examples) if len(examples) > 0 else None)
 
 
-def _setup(parser):  # pragma: no cover
+def _setup(parser: ArgumentParser) -> Namespace:  # pragma: no cover
     args = parser.parse_args()
     if hasattr(args, "verbose"):
         import logging
@@ -22,7 +23,7 @@ def _setup(parser):  # pragma: no cover
     return args
 
 
-def main():
+def main() -> None:  # pragma: no cover
     from os import makedirs
     parser = _parser("Exeplot", "This tool allows to plot executable sample(s) in different ways",
                      ["byte binary.exe", "entropy binary1.exe binary2.exe --scale"])

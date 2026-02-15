@@ -29,7 +29,7 @@ config = {
 numpy.int = numpy.int_  # dirty fix to "AttributeError: module 'numpy' has no attribute 'int'."
 
 
-def check_imports(*names):
+def check_imports(*names) -> None:
     import warnings
     from inspect import currentframe
     glob = currentframe().f_back.f_globals
@@ -42,7 +42,7 @@ def check_imports(*names):
             glob['_IMP'] = False
 
 
-def configure():  # pragma: no cover
+def configure() -> None:  # pragma: no cover
     from configparser import ConfigParser
     from os.path import exists, expanduser
     path = expanduser("~/.exeplot.conf")
@@ -58,7 +58,7 @@ def configure():  # pragma: no cover
     plt.rcParams['font.family'] = config['font_family']
 
 
-def configure_fonts(**kw):
+def configure_fonts(**kw) -> dict:
     import matplotlib
     matplotlib.rc('font', **{k.split("_")[1]: kw.pop(k, config[k]) for k in ['font_family', 'font_size']})
     kw['title-font'] = {'fontfamily': kw.pop('title_font_family', config['font_family']),

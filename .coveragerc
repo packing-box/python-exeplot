@@ -21,3 +21,4 @@ exclude_lines =
     if self.type not in ["ELF", "MachO", "PE"]:
     if j <= i or start2 is None:
     if s != self.__size:
+    glob['_IMP'] = True

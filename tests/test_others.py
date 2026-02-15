@@ -2,7 +2,6 @@
 # -*- coding: UTF-8 -*-
 import matplotlib.pyplot as plt
 import os
-from collections import Counter
 from exeplot.plots.__common__ import Binary
 from exeplot.utils import *
 from unittest import TestCase
@@ -21,10 +20,14 @@ class TestOthers(TestCase):
 class TestUtils(TestCase):
     def test_ngrams_functions(self):
         self.assertRaises(TypeError, ngrams_counts, 123)
-        self.assertTrue(isinstance(ngrams_counts(seq := b"\x00" * 4 + os.urandom(120) + b"\xff" * 4), Counter))
+        for n in [0, 4]:
+            self.assertRaises(ValueError, ngrams_counts, b"abc", n=n)
+        self.assertRaises(ValueError, ngrams_counts, b"abc", step=-1)
+        self.assertEqual(ngrams_counts(b"a", n=2), {})
+        self.assertTrue(isinstance(ngrams_counts(seq := b"\x00" * 4 + os.urandom(120) + b"\xff" * 4), dict))
+        self.assertTrue(isinstance(ngrams_counts(seq := b"\x00" * 4 + os.urandom(120) + b"\xff" * 4, n=2), dict))
         class Test:
             bytes = seq
-            size = len(seq)
         histogram = ngrams_distribution(t := Test(), exclude=(b"\x00", b"\xff"))
         self.assertTrue(isinstance(histogram, list))
         self.assertNotIn(b"\x00", [b for b, c in histogram])
