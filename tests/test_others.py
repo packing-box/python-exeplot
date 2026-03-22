@@ -23,7 +23,7 @@ class TestUtils(TestCase):
         for n in [0, 4]:
             self.assertRaises(ValueError, ngrams_counts, b"abc", n=n)
         self.assertRaises(ValueError, ngrams_counts, b"abc", step=-1)
-        self.assertEqual(ngrams_counts(b"a", n=2), {})
+        self.assertEqual(ngrams_counts(b"a", n=2), [])
         self.assertTrue(isinstance(ngrams_counts(seq := b"\x00" * 4 + os.urandom(120) + b"\xff" * 4), list))
         self.assertTrue(isinstance(ngrams_counts(seq := b"\x00" * 4 + os.urandom(120) + b"\xff" * 4, n=2), list))
         class Test:

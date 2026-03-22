@@ -50,7 +50,7 @@ def ngrams_counts(byte_obj: bytes | object, n: int = 1, step: int = 1) -> list[t
         a = np.frombuffer(data := byte_obj if isinstance(byte_obj, bytes) else byte_obj.bytes, dtype=np.uint8)
         l = a.size
         if l < n:
-            return {}
+            return []
         if n == 1:
             counts = {b.to_bytes(1, "big"): int(c) for b, c in \
                       enumerate(np.bincount(np.frombuffer(data, dtype=np.uint8)))}
@@ -68,7 +68,7 @@ def ngrams_counts(byte_obj: bytes | object, n: int = 1, step: int = 1) -> list[t
             if n not in byte_obj._ngram_counts_cache.keys():
                 byte_obj._ngram_counts_cache[n] = counts
             return byte_obj._ngram_counts_cache[n]
-    raise TypeError("Bad input type ; should be a byte sequence or object")
+    raise TypeError(f"Bad input type ; should be a byte sequence or object (got '{type(byte_obj)}')")
 
 
 def ngrams_distribution(byte_obj: bytes | object, n: int = 1, step: int = 1, n_most_common: Optional[int] = None,
@@ -83,7 +83,8 @@ def ngrams_distribution(byte_obj: bytes | object, n: int = 1, step: int = 1, n_m
     :param exclude:       list of specific n-grams to be excluded, no exclusion by default
     :return:              list of n_most_common (n-gram, count) pairs
     """
-    c = ngrams_counts(byte_obj, n, step)
+    if len(c := ngrams_counts(byte_obj, n, step)) == 0:
+        return []
     r = c[:len(c) if n_most_common is None else n_most_common + n_exclude_top + len(exclude or [])]
     if exclude is not None:
         r = [(ngram, count) for ngram, count in r if ngram not in exclude]
