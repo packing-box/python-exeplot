@@ -5,7 +5,7 @@
 [![PyPi](https://img.shields.io/pypi/v/exeplot.svg)](https://pypi.python.org/pypi/exeplot/)
 [![Read The Docs](https://readthedocs.org/projects/python-exeplot/badge/?version=latest)](https://python-exeplot.readthedocs.io/en/latest/?badge=latest)
 [![Build Status](https://github.com/packing-box/python-exeplot/actions/workflows/python-package.yml/badge.svg)](https://github.com/packing-box/python-exeplot/actions/workflows/python-package.yml)
-[![Coverage Status](https://raw.githubusercontent.com/packing-box/python-exeplot/main/docs/coverage.svg)](#)
+[![Coverage Status](https://raw.githubusercontent.com/packing-box/python-exeplot/coverage-badge/docs/coverage.svg)](#)
 [![Python Versions](https://img.shields.io/pypi/pyversions/exeplot.svg)](https://pypi.python.org/pypi/exeplot/)
 [![Known Vulnerabilities](https://snyk.io/test/github/packing-box/python-exeplot/badge.svg?targetFile=requirements.txt)](https://snyk.io/test/github/packing-box/python-exeplot?targetFile=requirements.txt)
 [![License](https://img.shields.io/pypi/l/exeplot.svg)](https://pypi.python.org/pypi/exeplot/)

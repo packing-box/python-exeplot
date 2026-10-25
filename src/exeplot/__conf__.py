@@ -43,18 +43,24 @@ def check_imports(*names) -> None:
 
 
 def configure() -> None:  # pragma: no cover
-    from configparser import ConfigParser
+    from configparser import ConfigParser, Error
     from os.path import exists, expanduser
     path = expanduser("~/.exeplot.conf")
     if exists(path):
         conf = ConfigParser()
         try:
             conf.read(path)
-        except:
+        except Error:
             raise ValueError("invalid configuration file (~/.exeplot.conf)")
-        # overwrite config's default options
-        for option in conf['Plot style']._options():
-            config[option] = conf['Plot style'][option]
+        # overwrite config's default options, casting values to the types of the defaults
+        if conf.has_section("Plot style"):
+            section = conf['Plot style']
+            for option in section:
+                t = type(config.get(option, ""))
+                try:
+                    config[option] = section.getboolean(option) if t is bool else t(section[option])
+                except ValueError:
+                    raise ValueError(f"invalid value for '{option}' in configuration file (~/.exeplot.conf)")
     plt.rcParams['font.family'] = config['font_family']
 
 
@@ -67,9 +73,9 @@ def configure_fonts(**kw) -> dict:
     kw['suptitle-font'] = {'fontfamily': kw.pop('suptitle_font_family', config['font_family']),
                            'fontsize': kw.pop('suptitle_font_size', int(config['font_size'] * 1.2)),
                            'fontweight': kw.pop('suptitle_font_weight', "normal")}
-    kw['annotation-font'] = {'fontfamily': kw.pop('suptitle_font_family', config['font_family']),
-                           'fontsize': kw.pop('suptitle_font_size', int(config['font_size'] * .5)),
-                           'fontweight': kw.pop('suptitle_font_weight', "normal")}
+    kw['annotation-font'] = {'fontfamily': kw.pop('annotation_font_family', config['font_family']),
+                             'fontsize': kw.pop('annotation_font_size', int(config['font_size'] * .5)),
+                             'fontweight': kw.pop('annotation_font_weight', "normal")}
     for p in "xy":
         kw[f'{p}label-font'] = {'fontfamily': kw.pop(f'{p}label_font_family', config['font_family']),
                                 'fontsize': kw.pop(f'{p}label_font_size', config['font_size']),

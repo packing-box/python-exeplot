@@ -30,7 +30,7 @@ def main() -> None:  # pragma: no cover
     extra = parser.add_argument_group("extra arguments")
     extra.add_argument("-h", "--help", action="help", help="show this help message and exit")
     extra.add_argument("-v", "--verbose", action="store_true", help="display debug information (default: False)")
-    plots = parser.add_subparsers(dest="type", help="plot type")
+    plots = parser.add_subparsers(dest="type", help="plot type", required=True)
     for plot in _plots:
         plot_func = globals()[plot]
         plot_parser = plot_func.__args__(plots.add_parser(plot, help=plot_func.__doc__.strip(), add_help=False))
@@ -52,3 +52,6 @@ def main() -> None:  # pragma: no cover
     delattr(args, "executable")
     globals()[args.type](*exe, **vars(args))
 
+
+if __name__ == "__main__":
+    main()

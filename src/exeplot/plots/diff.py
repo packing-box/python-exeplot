@@ -133,7 +133,7 @@ def plot(executable, executable2, legend1="", legend2="", **kwargs):
                      va="center")
     # ---------------------------------------------- CONFIGURE THE FIGURE ----------------------------------------------
     logger.debug("> configuring the figure")
-    if not kwargs.get('no_colorbar', False):
+    if not kwargs.get('no_colormap', kwargs.get('no_colorbar', False)):
         cb = plt.colorbar(ScalarMappable(cmap=ListedColormap(colors, N=4)),
                           location='bottom', ax=objs[-1], fraction=0.3, aspect=50, ticks=[0.125, 0.375, 0.625, 0.875])
         cb.set_ticklabels(['removed', 'modified', 'untouched', 'added'])

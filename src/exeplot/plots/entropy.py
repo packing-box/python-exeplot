@@ -128,10 +128,10 @@ def plot(*filenames, labels=None, sublabel=None, scale=False, target=None, **kwa
                     label = label(d)
             except:
                 pass
+            sl = None
             if sublabel and not (isinstance(sublabel, str) and "ep" in sublabel and d['ep'] is None):
-                if isinstance(sublabel, str):
-                    sublabel = SUBLABELS.get(sublabel)
-                sl = sublabel(d) if isinstance(sublabel, type(lambda: 0)) else None
+                sl_func = SUBLABELS.get(sublabel) if isinstance(sublabel, str) else sublabel
+                sl = sl_func(d) if callable(sl_func) else None
                 if sl:
                     nl, y_pos, f_color = len(sl.split("\n")), ref_point, "black"
                     if label:
@@ -142,7 +142,7 @@ def plot(*filenames, labels=None, sublabel=None, scale=False, target=None, **kwa
                     obj.text(s=sl, x=-420., y=y_pos, fontsize=f_size, color=f_color, ha="left", va="center")
             if label:
                 y_pos = ref_point
-                if sublabel:
+                if sl:
                     nl = len(sl.split("\n"))
                     y_pos = min(1.3, ref_point + .3 + nl * [.16, .12, .09, .08][min(4, nl)-1])
                 obj.text(s=label, x=-420., y=y_pos, fontsize=fs_ref, ha="left", va="center")

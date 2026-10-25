@@ -3,6 +3,7 @@ import os
 from functools import cached_property
 from statistics import mean
 
+from ..__conf__ import logger
 from ..utils import *
 
 
@@ -72,9 +73,12 @@ class Binary:
         # compute other characteristics using LIEF (catch warnings from stderr)
         tmp_fd, null_fd = os.dup(2), os.open(os.devnull, os.O_RDWR)
         os.dup2(null_fd, 2)
-        self.__binary = parse(self.path)
-        os.dup2(tmp_fd, 2)  # restore stderr
-        os.close(null_fd)
+        try:
+            self.__binary = parse(self.path)
+        finally:
+            os.dup2(tmp_fd, 2)  # restore stderr
+            os.close(null_fd)
+            os.close(tmp_fd)
         if self.__binary is None:
             raise TypeError("Not an executable")
         self.type = str(type(self.__binary)).split(".")[2]
@@ -82,10 +86,9 @@ class Binary:
             raise OSError("Unknown format")
     
     def __getattr__(self, name):
-        try:
-            return super(Binary, self).__getttr__(name)
-        except AttributeError:
-            return getattr(self.__binary, name)
+        if name == "_Binary__binary":
+            raise AttributeError(name)
+        return getattr(self.__binary, name)
     
     def __iter__(self):
         for _ in self.__sections_data():
@@ -209,7 +212,7 @@ class Binary:
                     x[i].append(end), w[i].append(self.size-end), t[i].append("_"), c[i].append("white")
                 if sum(w[i]) != self.size:
                     for start, width, section, color in zip(x[i], w[i], t[i], c[i]):
-                        print(f"LAYER {i}", section, color, start, width)
+                        logger.debug(f"layer {i}: {section} ({color}) start={start} width={width}")
                     raise ValueError(f"Sizes do not match at layer {i} ({sum(w[i])} != {self.size})")
                 yield i, x[i], w[i], t[i], c[i], legend
     
