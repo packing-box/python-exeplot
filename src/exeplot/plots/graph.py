@@ -33,14 +33,16 @@ def plot(executable, algorithm=_DEFAULT_ALGORITHM, engine=_DEFAULT_ENGINE, **kwa
               for k in _ENGINES}[engine]
     project = angr.Project(executable, auto_load_libs=False, engine=engine)
     cfg = getattr(project.analyses, f"CFG{algorithm.capitalize()}")()
+    # recent angr versions (e.g. 9.2.213, 10.x) return a SpillingCFG instead of a networkx graph
+    graph = cfg.graph.to_networkx() if hasattr(cfg.graph, "to_networkx") else cfg.graph
     labels, node_colors = {}, []
-    for node in cfg.graph.nodes():
+    for node in graph.nodes():
         labels[node] = f"{node.name}\n0x{node.addr:x}" if hasattr(node, "name") and node.name else f"0x{node.addr:x}"
         node_colors.append("red" if node.function_address == node.addr else "lightblue")
     # ---------------------------------------------- CONFIGURE THE FIGURE ----------------------------------------------
     logger.debug("> configuring the figure")
-    n = max(10, min(30, ceil(log2(n_nodes := len(cfg.graph.nodes()) + 1) * 2)))
+    n = max(10, min(30, ceil(log2(n_nodes := graph.number_of_nodes() + 1) * 2)))
     fig = plt.figure(figsize=(n, n))
-    nx.draw(cfg.graph, nx.kamada_kawai_layout(cfg.graph), fig.gca(), font_size=8, with_labels=True, labels=labels,
+    nx.draw(graph, nx.kamada_kawai_layout(graph), fig.gca(), font_size=8, with_labels=True, labels=labels,
             node_size=max(300, 15000 // n_nodes), node_color=node_colors)
 

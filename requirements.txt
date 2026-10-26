@@ -2,7 +2,10 @@ lief>=0.16.1
 matplotlib
 # optional dependencies (graph)
 angr>=9.2
+bitstring<5; python_version<'3.12'
+pycparser<3.12; python_version<'3.12'
 networkx>=3.4.2
 numpy
 pygraphviz>=1.14
+scipy
 unicorn>2
