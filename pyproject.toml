@@ -5,6 +5,31 @@ build-backend = "setuptools.build_meta"
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 
+[tool.coverage.run]
+source = ["exeplot"]
+omit = ["tests/*"]
+
+[tool.coverage.report]
+exclude_lines = [
+  'pragma: no cover',
+  'if.*?__name__.*?==.*?.__main__.:',
+  'def main\(\)\:',
+  'except:',
+  'except ImportError:',
+  'except NameError:',
+  'except (AttributeError, TypeError):',
+  'raise NotImplementedError',
+  'def _setup(parser):',
+  'def configure():',
+  'def byte_differences\(bytes1, bytes2\):',
+  '# blocks skipped ; no testing required (done manually)',
+  '''if kw.get\('interactive_mode', False\):''',
+  'if self.type not in ["ELF", "MachO", "PE"]:',
+  'if j <= i or start2 is None:',
+  'if s != self.__size:',
+  '''glob['_IMP'] = True''',
+]
+
 [tool.setuptools.dynamic]
 version = {attr = "exeplot.__info__.__version__"}
 
